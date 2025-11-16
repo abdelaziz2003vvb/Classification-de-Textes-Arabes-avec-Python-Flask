@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil - Classification de Textes Arabes{% endblock %}
+
+{% block content %}
+<header>
+    <h1>🤖 Classification de Textes Arabes</h1>
+    <p>Utilisant Naive Bayes et Python</p>
+</header>
+
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            <strong>{% if category == 'error' %}❌{% else %}✅{% endif %}</strong>
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<!-- État du Modèle -->
+<div class="card">
+    <h2>📊 État du Modèle</h2>
+    <div class="status">
+        <span class="status-label">Statut:</span>
+        {% if trained %}
+        <span class="badge badge-success">✅ Entraîné</span>
+        {% else %}
+        <span class="badge badge-warning">⚠️ Non entraîné</span>
+        {% endif %}
+    </div>
+
+    {% if stats and stats.trained %}
+    <div class="stats-grid">
+        <div class="stat-item">
+            <span class="stat-label">Documents:</span>
+            <span class="stat-value">{{ stats.total_documents }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Vocabulaire:</span>
+            <span class="stat-value">{{ stats.vocabulary_size }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Catégories:</span>
+            <span class="stat-value">{{ stats.categories|length }}</span>
+        </div>
+    </div>
+
+    <div class="categories">
+        <h3>📁 Catégories disponibles:</h3>
+        <ul>
+            {% for category in stats.categories %}
+            <li>
+                <strong>{{ category }}</strong>
+                <span>({{ stats.category_document_count[category] }} documents)</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Entraînement -->
+<div class="card">
+    <h2>🎓 Entraînement du Modèle</h2>
+    <p>Entraînez le modèle sur les données du dossier <code>data/training/</code></p>
+    
+    <div class="button-group">
+        <form method="post" action="{{ url_for('main.train') }}">
+            <button type="submit" class="btn btn-primary">
+                🎯 Entraîner le Modèle
+            </button>
+        </form>
+
+        <form method="post" action="{{ url_for('main.train_evaluate') }}">
+            <button type="submit" class="btn btn-secondary">
+                📊 Entraîner et Évaluer (80/20)
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Métriques d'Évaluation -->
+{% if metrics %}
+<div class="card">
+    <h2>📈 Métriques d'Évaluation</h2>
+    
+    <div class="metrics-summary">
+        <div class="metric-box">
+            <div class="metric-value">{{ "%.1f%%"|format(metrics.accuracy * 100) }}</div>
+            <div class="metric-label">Accuracy</div>
+        </div>
+    </div>
+
+    <table class="metrics-table">
+        <thead>
+            <tr>
+                <th>Catégorie</th>
+                <th>Précision</th>
+                <th>Rappel</th>
+                <th>F1-Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for category in metrics.categories %}
+            <tr>
+                <td>{{ category }}</td>
+                <td>{{ "%.1f%%"|format(metrics.precision[category] * 100) }}</td>
+                <td>{{ "%.1f%%"|format(metrics.recall[category] * 100) }}</td>
+                <td>{{ "%.1f%%"|format(metrics.f1_score[category] * 100) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td><strong>Moyenne (Macro)</strong></td>
+                <td><strong>{{ "%.1f%%"|format(metrics.macro_avg.precision * 100) }}</strong></td>
+                <td><strong>{{ "%.1f%%"|format(metrics.macro_avg.recall * 100) }}</strong></td>
+                <td><strong>{{ "%.1f%%"|format(metrics.macro_avg.f1_score * 100) }}</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="info-box">
+        <p>📊 <strong>Train:</strong> {{ train_size }} documents</p>
+        <p>📊 <strong>Test:</strong> {{ test_size }} documents</p>
+    </div>
+</div>
+{% endif %}
+
+<!-- Classification -->
+{% if trained %}
+<div class="card">
+    <h2>🔍 Classifier un Document</h2>
+    <p>Uploadez un fichier .txt ou saisissez du texte arabe</p>
+    
+    <a href="{{ url_for('main.upload_page') }}" class="btn btn-success btn-large">
+        📄 Aller à la Classification →
+    </a>
+</div>
+{% endif %}
+
+<footer>
+    <p>© 2025 Classification de Textes Arabes | Python + Flask</p>
+</footer>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Upload - Classification{% endblock %}
+
+{% block content %}
+<header>
+    <h1>📄 Upload et Classification</h1>
+    <a href="{{ url_for('main.index') }}" class="back-link">← Retour à l'accueil</a>
+</header>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            <strong>{% if category == 'error' %}❌{% else %}✅{% endif %}</strong>
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<!-- Upload de fichier -->
+<div class="card">
+    <h2>📁 Option 1: Upload un fichier .txt</h2>
+    <form method="post" action="{{ url_for('main.classify_file') }}" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="file">Sélectionnez un fichier texte arabe:</label>
+            <input type="file" id="file" name="file" accept=".txt" required class="file-input">
+        </div>
+        <div id="file-preview" style="display:none;"></div>
+        <button type="submit" class="btn btn-primary">
+            🚀 Classifier le Fichier
+        </button>
+    </form>
+</div>
+
+<!-- Saisie de texte -->
+<div class="card">
+    <h2>✍️ Option 2: Saisir du texte</h2>
+    <form method="post" action="{{ url_for('main.classify_text') }}">
+        <div class="form-group">
+            <label for="text">Saisissez votre texte arabe:</label>
+            <textarea id="text" name="text" rows="10" required 
+                      placeholder="مثال: الاقتصاد المغربي ينمو بشكل مستمر..."
+                      class="text-input" dir="rtl"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">
+            🚀 Classifier le Texte
+        </button>
+    </form>
+</div>
+
+<div class="info-box">
+    <h3>ℹ️ Instructions:</h3>
+    <ul>
+        <li>Le fichier doit être au format .txt encodé en UTF-8</li>
+        <li>Le texte doit être en arabe</li>
+        <li>Catégories disponibles: 
+            {% for cat in categories %}
+            <strong>{{ cat }}</strong>{% if not loop.last %}, {% endif %}
+            {% endfor %}
+        </li>
+    </ul>
+</div>
+
+<footer>
+    <p>© 2025 Classification de Textes Arabes</p>
+</footer>
+{% endblock %}

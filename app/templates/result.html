@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Résultat - Classification{% endblock %}
+
+{% block content %}
+<header>
+    <h1>✅ Résultat de Classification</h1>
+    <a href="{{ url_for('main.upload_page') }}" class="back-link">← Classifier un autre document</a>
+</header>
+
+<!-- Résultat principal -->
+<div class="card result-card">
+    <h2>🎯 Catégorie Prédite</h2>
+    <div class="predicted-category">
+        <span class="category-badge">{{ result.predicted_category }}</span>
+        <span class="confidence-badge">{{ "%.2f%%"|format(result.confidence * 100) }}</span>
+    </div>
+</div>
+
+<!-- Probabilités -->
+<div class="card">
+    <h2>📊 Probabilités par Catégorie</h2>
+    <div class="probabilities">
+        {% for category, prob in result.probabilities.items()|sort(attribute='1', reverse=True) %}
+        <div class="probability-item">
+            <span class="prob-label">{{ category }}</span>
+            <div class="prob-bar-container">
+                <div class="prob-bar {% if category == result.predicted_category %}prob-bar-primary{% else %}prob-bar-secondary{% endif %}"
+                     style="width: {{ prob * 100 }}%">
+                </div>
+                <span class="prob-value">{{ "%.1f%%"|format(prob * 100) }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Statistiques -->
+<div class="card">
+    <h2>📈 Statistiques du Document</h2>
+    <div class="stats-grid">
+        <div class="stat-item">
+            <span class="stat-label">Tokens totaux:</span>
+            <span class="stat-value">{{ result.total_tokens }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Tokens uniques:</span>
+            <span class="stat-value">{{ result.unique_tokens }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Fichier:</span>
+            <span class="stat-value">{{ file_name }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Contenu -->
+<div class="card">
+    <h2>📄 Contenu du Document</h2>
+    <div class="document-content" dir="rtl">
+        <pre>{{ content }}</pre>
+    </div>
+</div>
+
+<!-- Actions -->
+<div class="button-group">
+    <a href="{{ url_for('main.upload_page') }}" class="btn btn-primary">
+        📄 Classifier un autre document
+    </a>
+    <a href="{{ url_for('main.index') }}" class="btn btn-secondary">
+        🏠 Retour à l'accueil
+    </a>
+</div>
+
+<footer>
+    <p>© 2025 Classification de Textes Arabes</p>
+</footer>
+{% endblock %}
